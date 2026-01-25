@@ -9,7 +9,7 @@ import (
 	"github.com/andrearcaina/goforge/internal/templates"
 )
 
-func Generate(cfg spec.Config) error {
+func Generate(cfg *spec.Config) error {
 	// parse the template from the embedded FS
 	tmpl, err := template.ParseFS(templates.FS, "hello.go.tmpl")
 	if err != nil {

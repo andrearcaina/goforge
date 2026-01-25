@@ -3,5 +3,6 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println("Hello, {{ .SomeFlag }}!")
+	fmt.Println("Hello, {{ .Form.SomeFlag }}!")
+	fmt.Println("Another flag: {{ .Form.AnotherFlag }}")
 }

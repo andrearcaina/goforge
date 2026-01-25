@@ -1,6 +1,11 @@
 package spec
 
 type Config struct {
-	SomeFlag   string
 	OutputPath string
+	Form       Form
+}
+
+type Form struct {
+	SomeFlag    string
+	AnotherFlag string
 }

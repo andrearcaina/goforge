@@ -20,7 +20,7 @@ For example:
 
 goforge generate --some-flag "Developer"`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := goforge.Generate(cfg); err != nil {
+		if err := goforge.Forge(&cfg); err != nil {
 			return err
 		}
 
@@ -31,7 +31,9 @@ goforge generate --some-flag "Developer"`,
 func init() {
 	rootCmd.AddCommand(generateCmd)
 
-	// first flag is just for testing (will be removed later)
-	generateCmd.Flags().StringVar(&cfg.SomeFlag, "some-flag", "World", "A flag to specify who to say hello to")
 	generateCmd.Flags().StringVarP(&cfg.OutputPath, "path", "p", ".", "The directory to write the generated file to")
+
+	// following flags are just for test data
+	generateCmd.Flags().StringVar(&cfg.Form.SomeFlag, "some-flag", "", "A flag to specify who to say hello to")
+	generateCmd.Flags().StringVar(&cfg.Form.AnotherFlag, "another-flag", "", "Another flag")
 }
