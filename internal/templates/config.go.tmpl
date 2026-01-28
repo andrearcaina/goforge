@@ -1,0 +1,58 @@
+package config
+
+import (
+	"fmt"
+	"os"
+)
+
+type Config struct {
+	PORT string
+	DB   PostgresConfig
+}
+
+type PostgresConfig struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	DbName   string
+	URL      string
+}
+
+func New() *Config {
+	return &Config{
+		PORT: fmt.Sprintf(":%s", getEnv("PORT", "8000")),
+		DB:   newPostgresConfig(),
+	}
+}
+
+func newPostgresConfig() PostgresConfig {
+	// you would need to set these env vars
+	host := getEnv("DB_HOST", "localhost")
+	port := getEnv("DB_PORT", "5432")
+	user := getEnv("POSTGRES_USER", "postgres")
+	password := getEnv("POSTGRES_PASSWORD", "password")
+	dbName := getEnv("POSTGRES_DB", "postgres")
+
+	return PostgresConfig{
+		Host:     host,
+		Port:     port,
+		User:     user,
+		Password: password,
+		DbName:   dbName,
+		URL: fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+			user,
+			password,
+			host,
+			port,
+			dbName,
+		),
+	}
+}
+
+func getEnv(key, fallback string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return fallback
+}

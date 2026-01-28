@@ -1,0 +1,74 @@
+package api
+
+import (
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+)
+
+type Handler struct {
+	service *Service
+}
+
+func NewHandler(service *Service) *Handler {
+	return &Handler{
+		service: service,
+	}
+}
+
+func (h *Handler) ServeRoutes() chi.Router {
+	r := chi.NewRouter()
+
+	r.Get("/{id}", h.GetUser)
+	r.Get("/", h.GetUsers)
+	r.Post("/", h.CreateUser)
+	r.Delete("/{id}", h.DeleteUser)
+
+	return r
+}
+
+// GetUsers returns all users
+// @Summary Get all users
+// @Description Get a list of all users
+// @Tags users
+// @Produce plain
+// @Success 200 {string} string "users"
+// @Router / [get]
+func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(h.service.GetUsers(r.Context())))
+}
+
+// CreateUser creates a new user
+// @Summary Create a user
+// @Description Create a new user
+// @Tags users
+// @Produce plain
+// @Success 200 {string} string "user created"
+// @Router / [post]
+func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(h.service.CreateUser(r.Context())))
+}
+
+// GetUser returns a specific user
+// @Summary Get a user
+// @Description Get a user by ID
+// @Tags users
+// @Produce plain
+// @Param id path string true "User ID"
+// @Success 200 {string} string "user"
+// @Router /{id} [get]
+func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(h.service.GetUser(r.Context())))
+}
+
+// DeleteUser deletes a user
+// @Summary Delete a user
+// @Description Delete a user by ID
+// @Tags users
+// @Produce plain
+// @Param id path string true "User ID"
+// @Success 200 {string} string "user deleted"
+// @Router /{id} [delete]
+func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(h.service.DeleteUser(r.Context())))
+}

@@ -1,0 +1,26 @@
+package api
+
+import "context"
+
+type Service struct {
+}
+
+func NewService() *Service {
+	return &Service{}
+}
+
+func (s *Service) GetUser(ctx context.Context) string {
+	return "getuser called"
+}
+
+func (s *Service) GetUsers(ctx context.Context) string {
+	return "getusers called"
+}
+
+func (s *Service) CreateUser(ctx context.Context) string {
+	return "createuser called"
+}
+
+func (s *Service) DeleteUser(ctx context.Context) string {
+	return "deleteuser called"
+}

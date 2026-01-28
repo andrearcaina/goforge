@@ -6,22 +6,33 @@ import (
 
 	"github.com/andrearcaina/goforge/internal/spec"
 	"github.com/andrearcaina/goforge/internal/ui"
+	"github.com/charmbracelet/huh/spinner"
 )
 
-func Forge(initial *spec.Config) error {
-	// try to run the ui
-	cfg, err := ui.Run(initial)
+func Forge(cfg *spec.Config) error {
+	if cfg.Default {
+		cfg.Form = spec.Form{
+			Name:           "example-server",
+			ServerTypeFlag: "rest",
+		}
+	} else {
+		if err := ui.Run(cfg); err != nil {
+			return errors.New("failed to run ui form")
+		}
+	}
+
+	var err error
+	_ = spinner.New().
+		Title("Forging your project...").
+		Action(func() {
+			err = Generate(cfg)
+		}).Run()
+
 	if err != nil {
-		return errors.New("ui failed")
+		return fmt.Errorf("failed to generate the file: %w", err)
 	}
 
-	// try to generate the file
-	if err := Generate(cfg); err != nil {
-		return errors.New("generating file failed")
-	}
+	ui.OutputSuccess(cfg)
 
-	fmt.Println("File generated successfully")
-
-	// success if none fails
 	return nil
 }

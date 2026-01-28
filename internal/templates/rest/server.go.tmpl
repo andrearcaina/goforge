@@ -1,0 +1,75 @@
+package api
+
+import (
+	"context"
+	"log"
+	"net/http"
+	"{{ .Form.Name }}/internal/config"
+	{{ if .Form.DatabaseFlag }}	"{{ .Form.Name }}/internal/db"{{ end }}
+
+	_ "{{ .Form.Name }}/docs"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger"
+)
+
+type Server struct {
+	HTTP     *http.Server
+{{ if .Form.DatabaseFlag }}	Database *db.Database{{ end }}
+}
+
+func NewServer() *Server {
+	router := chi.NewRouter()
+
+	router.Use(
+		middleware.Logger,
+		middleware.Recoverer,
+	)
+
+	cfg := config.New()
+
+	{{ if .Form.DatabaseFlag }}
+	dbInstance, err := db.New(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	{{ end }}
+
+	service := NewService()
+	handler := NewHandler(service)
+
+	router.Mount("/api/users", handler.ServeRoutes())
+	router.Get("/swagger/*", httpSwagger.WrapHandler)
+
+	return &Server{
+		HTTP: &http.Server{
+			Addr:    cfg.PORT,
+			Handler: router,
+		},
+	{{ if .Form.DatabaseFlag }} Database: dbInstance,{{ end }}
+	}
+}
+
+func (s *Server) Run() error {
+	log.Printf("Starting rest server on port %s\n", s.HTTP.Addr)
+	return s.HTTP.ListenAndServe()
+}
+
+func (s *Server) Close(ctx context.Context) error {
+	log.Println("Shutting down rest server gracefully...")
+	{{ if .Form.DatabaseFlag }}
+	if s.Database != nil {
+		log.Println("Database connection closed.")
+		s.Database.Close()
+	}
+	{{ end }}
+
+	err := s.HTTP.Shutdown(ctx)
+	if err != nil {
+		return err
+	}
+
+	log.Println("rest server shutdown complete.")
+	return nil
+}
