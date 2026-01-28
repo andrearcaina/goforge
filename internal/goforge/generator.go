@@ -38,7 +38,7 @@ func generateRESTServer(cfg *spec.Config) error {
 		}
 	}
 
-	if err := generateFile("go.mod.tmpl", filepath.Join(cfg.OutputPath, "go.mod"), cfg); err != nil {
+	if err := generateFile("rest/go.mod.tmpl", filepath.Join(cfg.OutputPath, "go.mod"), cfg); err != nil {
 		return err
 	}
 

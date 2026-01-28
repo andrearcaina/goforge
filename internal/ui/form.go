@@ -57,7 +57,7 @@ func createForm(cfg *spec.Config) *huh.Form {
 		))
 	}
 
-	if cfg.Form.DatabaseFlag {
+	if !cfg.Form.DatabaseFlag {
 		groups = append(groups, huh.NewGroup(
 			huh.NewConfirm().
 				Title("Should I generate database files?").

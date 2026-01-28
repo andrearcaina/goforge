@@ -13,7 +13,8 @@ func Forge(cfg *spec.Config) error {
 	if cfg.Default {
 		cfg.Form = spec.Form{
 			Name:           "example-server",
-			ServerTypeFlag: "rest",
+			ServerTypeFlag: spec.REST,
+			DatabaseFlag:   false,
 		}
 	} else {
 		if err := ui.Run(cfg); err != nil {
