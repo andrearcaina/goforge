@@ -1,6 +1,6 @@
 # goforge
 
-Opinionated CLI tool for generating Go backend service boilerplate
+Opinionated CLI/TUI tool for generating Go backend service boilerplate
 
 ### Overview
 
@@ -14,11 +14,10 @@ P.S. This was encountered while working on [fáfnir](https://github.com/andrearc
 
 In no particular order:
 
-- [ ] Add REST, gRPC, and GraphQL templates to my liking
-    - [x] REST
-    - [ ] gRPC
-    - [ ] GraphQL
-- [x] Add SQLc support to my liking
-- [x] Implement quality of life features like:
-    - [x] Flags for every possible option
-    - [x] Interactive UI for when flags are not provided
+- [ ] Allow different server type boilerplates 
+    - [x] REST (`go-chi`)
+    - [ ] gRPC (`grpc-go`)
+    - [ ] GraphQL (`gqlgen`)
+- [x] Add SQLc support flag
+    - [ ] Potentially add a docker-compose file to spin up a PostgreSQL instance
+- [x] Interactive UI for when certain flags are not provided
