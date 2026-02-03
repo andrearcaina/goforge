@@ -1,7 +1,6 @@
 package goforge
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,11 +12,13 @@ import (
 )
 
 func Generate(cfg *spec.Config) error {
-	if cfg.Form.ServerTypeFlag == "rest" {
+	if cfg.Form.ServerTypeFlag == spec.REST {
 		return generateRESTServer(cfg)
 	}
 
-	return errors.New("unknown server type")
+	// TODO: add support for grpc and graphql
+
+	return fmt.Errorf("unsupported server type: %s", cfg.Form.ServerTypeFlag)
 }
 
 func generateRESTServer(cfg *spec.Config) error {

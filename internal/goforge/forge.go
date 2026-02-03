@@ -1,7 +1,6 @@
 package goforge
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/andrearcaina/goforge/internal/spec"
@@ -18,7 +17,7 @@ func Forge(cfg *spec.Config) error {
 		}
 	} else {
 		if err := ui.Run(cfg); err != nil {
-			return errors.New("failed to run ui form")
+			return fmt.Errorf("failed to run UI: %w", err)
 		}
 	}
 

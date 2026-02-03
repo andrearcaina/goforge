@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/andrearcaina/goforge/internal/spec"
 	"github.com/charmbracelet/huh"
@@ -37,7 +37,7 @@ func createForm(cfg *spec.Config) *huh.Form {
 				Value(&cfg.Form.Name).
 				Validate(func(s string) error {
 					if s == "" {
-						return errors.New("this field cannot be empty")
+						return fmt.Errorf("project name cannot be empty")
 					}
 					return nil
 				}),
