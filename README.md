@@ -21,3 +21,4 @@ In no particular order:
 - [x] Add SQLc support flag
     - [ ] Potentially add a docker-compose file to spin up a PostgreSQL instance
 - [x] Interactive UI for when certain flags are not provided
+- [ ] Add installation scripts for both Windows and Linux
