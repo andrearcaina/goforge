@@ -18,18 +18,38 @@ func OutputSuccess(cfg *spec.Config) {
 		PaddingLeft(2)
 
 	fmt.Println(successStyle.Render("🔥 Generated successfully!"))
-
-	// next step
 	fmt.Println("Make sure to run the following commands:")
-	fmt.Println(cmdStyle.Render(fmt.Sprintf("cd %s", cfg.OutputPath)))
-	fmt.Println(cmdStyle.Render("go mod tidy"))
-	fmt.Println(cmdStyle.Render("swag init -g ./cmd/server/main.go (need to install swag first)"))
 
-	// additional commands if database is included
+	// base commands to run
+	commands := []string{
+		fmt.Sprintf("cd %s", cfg.OutputPath),
+		"go mod tidy",
+	}
+
+	// add commands based on selected options
+	if cfg.Form.ServerTypeFlag == spec.REST {
+		commands = append(commands, "swag init -g ./cmd/server/main.go  # install swag if you haven't already")
+	}
+
+	// if database is selected, add sqlc generate and server run commands
 	if cfg.Form.DatabaseFlag {
-		fmt.Println(cmdStyle.Render("sqlc generate ./... (you need to install sqlc first)"))
-		fmt.Println(cmdStyle.Render("go run ./cmd/server/main.go (you need to run a database first and set up the .env file)"))
+		commands = append(commands,
+			"sqlc generate ./...                # install sqlc if you haven't already",
+			"goose up -dir ./db/migrations postgres \"your_db_connection_string\"  # install goose and DB is running",
+			"go run ./cmd/server/main.go        # make sure DB is running and .env is set",
+		)
 	} else {
-		fmt.Println(cmdStyle.Render("go run ./cmd/server/main.go"))
+		commands = append(commands, "go run ./cmd/server/main.go")
+	}
+
+	// if REST server is selected, add command to view API docs
+	if cfg.Form.ServerTypeFlag == spec.REST {
+		commands = append(commands,
+			"visit http://localhost:8000/swagger/index.html  # view API docs",
+		)
+	}
+
+	for _, cmd := range commands {
+		fmt.Println(cmdStyle.Render(cmd))
 	}
 }
