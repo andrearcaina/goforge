@@ -10,6 +10,24 @@ The idea is that these are backend services (like microservices), not an entire 
 
 P.S. This was encountered while working on [fáfnir](https://github.com/andrearcaina/fafnir).
 
+### Installation
+`goforge` can be installed on Windows or Linux, WSL, Git Bash:
+
+Install via cURL on Linux, WSL, or Git Bash:
+```bash
+curl -fsSL https://raw.githubusercontent.com/andrearcaina/goforge/main/install.sh | sh
+```
+
+Install via Powershell on Windows:
+```bash
+irm https://raw.githubusercontent.com/andrearcaina/goforge/main/install.ps1 | iex
+```
+
+Or via Go (requires Go 1.24.5 or later):
+```bash
+go install github.com/andrearcaina/pathfinder@latest
+```
+
 ### TODO
 
 In no particular order:
@@ -21,4 +39,4 @@ In no particular order:
 - [x] Add SQLc support flag
     - [ ] Potentially add a docker-compose file to spin up a PostgreSQL instance
 - [x] Interactive UI for when certain flags are not provided
-- [ ] Add installation scripts for both Windows and Linux
+- [X] Add installation scripts for both Windows and Linux

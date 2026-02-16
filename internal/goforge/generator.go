@@ -102,7 +102,7 @@ func generateRESTServer(cfg *spec.Config) error {
 func generateDBFiles(cfg *spec.Config) error {
 	dbFiles := map[string]string{
 		"base/sqlc.yaml.tmpl": "sqlc.yaml",
-		"db/init.sql.tmpl":    fmt.Sprintf("db/migrations/%s_init.sql", time.Now().Format("20060102150405")),
+		"db/init.sql.tmpl":    fmt.Sprintf("internal/db/migrations/%s_init.sql", time.Now().Format("20060102150405")),
 		"db/user.sql.tmpl":    "internal/db/queries/user.sql",
 		"db/db.go.tmpl":       "internal/db/db.go",
 	}

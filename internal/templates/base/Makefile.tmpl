@@ -1,9 +1,18 @@
-.PHONY: default build run
+.PHONY: default tidy swag build run clean
 
 default: run
 
-build:
+tidy:
+	go mod tidy
+
+swag:
+	swag init -g ./cmd/server/main.go
+
+build: tidy swag
 	go build -o ./bin/main ./cmd/server/main.go
 
 run: build
 	./bin/main
+
+clean:
+	rm -rf ./bin
