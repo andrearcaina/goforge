@@ -19,4 +19,5 @@ type Form struct {
 	Name           string
 	ServerTypeFlag ServerTypeFlag
 	DatabaseFlag   bool
+	MakefileFlag   bool
 }

@@ -41,6 +41,7 @@ func init() {
 	generateCmd.Flags().StringVarP(&cfg.Form.Name, "name", "n", "", "The name for the go.mod module")
 	generateCmd.Flags().StringVarP((*string)(&cfg.Form.ServerTypeFlag), "server", "s", "", "Type of server to generate (rest/grpc/graphql)")
 	generateCmd.Flags().BoolVar(&cfg.Form.DatabaseFlag, "database", false, "Generate database files (if flag is set, set to true)")
+	generateCmd.Flags().BoolVarP(&cfg.Form.MakefileFlag, "makefile", "m", false, "Generate makefile (if flag is set, set to true)")
 
 	// normalize server type flag to lowercase
 	generateCmd.PreRun = func(cmd *cobra.Command, args []string) {

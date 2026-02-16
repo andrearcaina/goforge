@@ -65,6 +65,14 @@ func createForm(cfg *spec.Config) *huh.Form {
 		))
 	}
 
+	if !cfg.Form.MakefileFlag {
+		groups = append(groups, huh.NewGroup(
+			huh.NewConfirm().
+				Title("Should I generate Makefile?").
+				Value(&cfg.Form.MakefileFlag),
+		))
+	}
+
 	// if no groups were added, return nil
 	if len(groups) == 0 {
 		return nil

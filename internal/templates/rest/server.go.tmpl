@@ -2,10 +2,10 @@ package api
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"{{ .Form.Name }}/internal/config"
 	{{ if .Form.DatabaseFlag }}	"{{ .Form.Name }}/internal/db"{{ end }}
+	"{{ .Form.Name }}/internal/logger"
 
 	_ "{{ .Form.Name }}/docs"
 
@@ -15,61 +15,48 @@ import (
 )
 
 type Server struct {
-	HTTP     *http.Server
-{{ if .Form.DatabaseFlag }}	Database *db.Database{{ end }}
+	server *http.Server
+	logger *logger.Logger
 }
 
-func NewServer() *Server {
+func NewServer(cfg *config.Config, logger *logger.Logger, handler *Handler) (*Server, error) {
 	router := chi.NewRouter()
 
 	router.Use(
-		middleware.Logger,
+		logger.RequestLogger,
 		middleware.Recoverer,
 	)
-
-	cfg := config.New()
-
-	{{ if .Form.DatabaseFlag }}
-	dbInstance, err := db.New(cfg)
-	if err != nil {
-		log.Fatal(err)
-	}
-	{{ end }}
-
-	service := NewService()
-	handler := NewHandler(service)
 
 	router.Mount("/api/users", handler.ServeRoutes())
 	router.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	return &Server{
-		HTTP: &http.Server{
+		server: &http.Server{
 			Addr:    cfg.PORT,
 			Handler: router,
 		},
-	{{ if .Form.DatabaseFlag }} Database: dbInstance,{{ end }}
-	}
+		logger: logger,
+	}, nil
 }
 
 func (s *Server) Run() error {
-	log.Printf("Starting rest server on port %s\n", s.HTTP.Addr)
-	return s.HTTP.ListenAndServe()
+	s.logger.Info(context.Background(), "Starting server", "port", s.server.Addr)
+
+	if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		return err
+	}
+
+	return nil
 }
 
 func (s *Server) Close(ctx context.Context) error {
-	log.Println("Shutting down rest server gracefully...")
-	{{ if .Form.DatabaseFlag }}
-	if s.Database != nil {
-		log.Println("Database connection closed.")
-		s.Database.Close()
-	}
-	{{ end }}
+	s.logger.Info(ctx, "Shutting down server gracefully...")
 
-	err := s.HTTP.Shutdown(ctx)
+	err := s.server.Shutdown(ctx)
 	if err != nil {
 		return err
 	}
 
-	log.Println("rest server shutdown complete.")
+	s.logger.Info(ctx, "Server shutdown complete.")
 	return nil
 }

@@ -64,6 +64,16 @@ func generateBaseFiles(cfg *spec.Config) error {
 		return err
 	}
 
+	if err := generateFile([]string{"base/logger.go.tmpl"}, filepath.Join(cfg.OutputPath, "internal/logger/logger.go"), cfg); err != nil {
+		return err
+	}
+
+	if cfg.Form.MakefileFlag {
+		if err := generateFile([]string{"base/Makefile.tmpl"}, filepath.Join(cfg.OutputPath, "Makefile"), cfg); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 

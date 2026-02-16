@@ -36,8 +36,11 @@ func OutputSuccess(cfg *spec.Config) {
 		commands = append(commands,
 			"sqlc generate ./...                # install sqlc if you haven't already",
 			"goose up -dir ./db/migrations postgres \"your_db_connection_string\"  # install goose and DB is running",
-			"go run ./cmd/server/main.go        # make sure DB is running and .env is set",
 		)
+	}
+
+	if cfg.Form.MakefileFlag {
+		commands = append(commands, "make")
 	} else {
 		commands = append(commands, "go run ./cmd/server/main.go")
 	}
