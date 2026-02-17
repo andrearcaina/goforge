@@ -84,6 +84,6 @@ In no particular order:
     - [ ] gRPC (`grpc-go`)
     - [ ] GraphQL (`gqlgen`)
 - [x] Add SQLc support flag
-    - [ ] Potentially add a docker-compose file to spin up a PostgreSQL instance
+    - [X] Potentially add a docker-compose file to spin up a PostgreSQL instance
 - [x] Interactive UI for when certain flags are not provided
 - [X] Add installation scripts for both Windows and Linux

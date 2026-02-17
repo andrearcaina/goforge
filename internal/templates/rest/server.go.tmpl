@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 	"{{ .Form.Name }}/internal/config"
-	{{ if .Form.DatabaseFlag }}	"{{ .Form.Name }}/internal/db"{{ end }}
 	"{{ .Form.Name }}/internal/logger"
 
 	_ "{{ .Form.Name }}/docs"

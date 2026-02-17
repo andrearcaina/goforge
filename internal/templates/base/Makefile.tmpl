@@ -1,14 +1,14 @@
-.PHONY: default tidy swag build run clean
+.PHONY: default tidy swag build run clean {{ if .Form.DatabaseFlag }}migrate-up migrate-down migrate-status migrate-create{{ end }}
 
 default: run
 
 tidy:
 	go mod tidy
 
-swag:
+generate-api:
 	swag init -g ./cmd/server/main.go
 
-build: tidy swag
+build: tidy generate-api {{ if .Form.DatabaseFlag }}generate-db{{ end }}
 	go build -o ./bin/main ./cmd/server/main.go
 
 run: build
@@ -16,3 +16,29 @@ run: build
 
 clean:
 	rm -rf ./bin
+{{ if .Form.DatabaseFlag }}
+migrate-up:
+	export $$(cat .env | xargs) && goose -dir internal/db/migrations up
+
+migrate-down:
+	export $$(cat .env | xargs) && goose -dir internal/db/migrations down
+
+migrate-status:
+	export $$(cat .env | xargs) && goose -dir internal/db/migrations status
+
+migrate-create:
+	goose -dir internal/db/migrations create $(name) sql
+
+generate-db:
+	export $$(cat .env | xargs) && sqlc generate
+{{ end }}
+{{ if .Form.DockerFlag }}
+docker-build:
+	docker compose -p {{ .Form.Name }} --env-file .env build --pull --no-cache
+
+docker-run:
+	docker compose -p {{ .Form.Name }} --env-file .env up -d
+
+docker-clean:
+	docker compose -p {{ .Form.Name }} --env-file .env down --rmi all --volumes --remove-orphans
+{{ end }}

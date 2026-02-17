@@ -52,7 +52,7 @@ func generateBaseFiles(cfg *spec.Config) error {
 	}
 
 	mainTemplates := []string{"base/main.go.tmpl"}
-	if cfg.Form.ServerTypeFlag == "rest" {
+	if cfg.Form.ServerTypeFlag == spec.REST {
 		mainTemplates = []string{"rest/main.go.tmpl"}
 	}
 
@@ -70,6 +70,16 @@ func generateBaseFiles(cfg *spec.Config) error {
 
 	if cfg.Form.MakefileFlag {
 		if err := generateFile([]string{"base/Makefile.tmpl"}, filepath.Join(cfg.OutputPath, "Makefile"), cfg); err != nil {
+			return err
+		}
+	}
+
+	if cfg.Form.DockerFlag {
+		if err := generateFile([]string{"base/compose.yml.tmpl"}, filepath.Join(cfg.OutputPath, "docker-compose.yml"), cfg); err != nil {
+			return err
+		}
+
+		if err := generateFile([]string{"base/.env.example.tmpl"}, filepath.Join(cfg.OutputPath, ".env"), cfg); err != nil {
 			return err
 		}
 	}

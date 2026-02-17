@@ -73,6 +73,14 @@ func createForm(cfg *spec.Config) *huh.Form {
 		))
 	}
 
+	if !cfg.Form.DockerFlag {
+		groups = append(groups, huh.NewGroup(
+			huh.NewConfirm().
+				Title("Should I generate Docker compose file and .env file?").
+				Value(&cfg.Form.DockerFlag),
+		))
+	}
+
 	// if no groups were added, return nil
 	if len(groups) == 0 {
 		return nil

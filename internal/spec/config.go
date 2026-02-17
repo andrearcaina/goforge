@@ -20,4 +20,5 @@ type Form struct {
 	ServerTypeFlag ServerTypeFlag
 	DatabaseFlag   bool
 	MakefileFlag   bool
+	DockerFlag     bool
 }

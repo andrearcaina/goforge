@@ -42,6 +42,7 @@ func init() {
 	generateCmd.Flags().StringVarP((*string)(&cfg.Form.ServerTypeFlag), "server", "s", "", "Type of server to generate (rest/grpc/graphql)")
 	generateCmd.Flags().BoolVar(&cfg.Form.DatabaseFlag, "database", false, "Generate database files (if flag is set, set to true)")
 	generateCmd.Flags().BoolVarP(&cfg.Form.MakefileFlag, "makefile", "m", false, "Generate makefile (if flag is set, set to true)")
+	generateCmd.Flags().BoolVarP(&cfg.Form.DockerFlag, "docker", "D", false, "Generate Docker Compose (for DB) and .env file (if flag is set, set to true)")
 
 	// normalize server type flag to lowercase
 	generateCmd.PreRun = func(cmd *cobra.Command, args []string) {
