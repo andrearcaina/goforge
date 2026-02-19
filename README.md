@@ -83,7 +83,8 @@ In no particular order:
     - [x] REST (`go-chi`)
     - [ ] gRPC (`grpc-go`)
     - [ ] GraphQL (`gqlgen`)
-- [x] Add SQLc support flag
+- [X] Add Makefile support flag
+- [x] Add SQLc/database support flag
     - [X] Potentially add a docker-compose file to spin up a PostgreSQL instance
 - [x] Interactive UI for when certain flags are not provided
 - [X] Add installation scripts for both Windows and Linux
