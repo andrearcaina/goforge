@@ -72,7 +72,7 @@ If all required flags are provided (including `--database`), the TUI is skipped 
 For example, running with all required flags will produce:
 ![goforge all flags](images/goforge-all-flags.png)
 
-Here is an example where you can trigger the TUI:
+Here is an example where you can trigger the TUI:\
 ![goforge TUI](images/goforge-tui.png)
 
 ### TODO
