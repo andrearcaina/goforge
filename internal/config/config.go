@@ -1,4 +1,4 @@
-package spec
+package config
 
 // ServerTypeFlag is an enum and can be one of the following values
 type ServerTypeFlag string

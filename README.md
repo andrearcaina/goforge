@@ -81,7 +81,7 @@ In no particular order:
 
 - [ ] Allow different server type boilerplates 
     - [x] REST (`go-chi`)
-    - [ ] gRPC (`grpc-go`)
+    - [x] gRPC (`grpc-go`)
     - [ ] GraphQL (`gqlgen`)
 - [X] Add Makefile support flag
 - [x] Add SQLc/database support flag

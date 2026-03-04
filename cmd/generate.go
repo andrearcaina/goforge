@@ -6,12 +6,12 @@ package cmd
 import (
 	"strings"
 
+	"github.com/andrearcaina/goforge/internal/config"
 	"github.com/andrearcaina/goforge/internal/goforge"
-	"github.com/andrearcaina/goforge/internal/spec"
 	"github.com/spf13/cobra"
 )
 
-var cfg spec.Config
+var cfg config.Config
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
@@ -47,6 +47,6 @@ func init() {
 	// normalize server type flag to lowercase
 	generateCmd.PreRun = func(cmd *cobra.Command, args []string) {
 		// first convert to string, then lowercase the string, then convert back to ServerTypeFlag
-		cfg.Form.ServerTypeFlag = spec.ServerTypeFlag(strings.ToLower(string(cfg.Form.ServerTypeFlag)))
+		cfg.Form.ServerTypeFlag = config.ServerTypeFlag(strings.ToLower(string(cfg.Form.ServerTypeFlag)))
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/andrearcaina/goforge/internal/spec"
+	"github.com/andrearcaina/goforge/internal/config"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -19,7 +19,7 @@ var (
 			PaddingLeft(2)
 )
 
-func OutputSuccess(cfg *spec.Config) {
+func OutputSuccess(cfg *config.Config) {
 	fmt.Println(successStyle.Render("🔥 Generated successfully!"))
 	fmt.Println("Make sure to run the following commands:")
 
@@ -29,11 +29,12 @@ func OutputSuccess(cfg *spec.Config) {
 	os.Exit(0)
 }
 
-func buildCommands(cfg *spec.Config) []string {
+func buildCommands(cfg *config.Config) []string {
 	makefile := cfg.Form.MakefileFlag
 	db := cfg.Form.DatabaseFlag
 	docker := cfg.Form.DockerFlag
-	isREST := cfg.Form.ServerTypeFlag == spec.REST
+	isREST := cfg.Form.ServerTypeFlag == config.REST
+	isGRPC := cfg.Form.ServerTypeFlag == config.GRPC
 
 	commands := []string{
 		fmt.Sprintf("cd %s", cfg.OutputPath),
@@ -79,6 +80,12 @@ func buildCommands(cfg *spec.Config) []string {
 		if isREST {
 			commands = append(commands,
 				"swag init -g ./cmd/server/main.go  # install swag if you haven't already",
+			)
+		} else if isGRPC {
+			commands = append(commands,
+				"protoc --go_out=. --go_opt=paths=source_relative \\",
+				"    --go-grpc_out=. --go-grpc_opt=paths=source_relative \\",
+				"    internal/pb/user/user.proto    # install protoc and go plugins if you haven't already",
 			)
 		}
 

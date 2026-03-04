@@ -3,11 +3,11 @@ package ui
 import (
 	"fmt"
 
-	"github.com/andrearcaina/goforge/internal/spec"
+	"github.com/andrearcaina/goforge/internal/config"
 	"github.com/charmbracelet/huh"
 )
 
-func Run(cfg *spec.Config) error {
+func Run(cfg *config.Config) error {
 	// create the form
 	form := createForm(cfg)
 	if form == nil {
@@ -25,7 +25,7 @@ func Run(cfg *spec.Config) error {
 	return nil
 }
 
-func createForm(cfg *spec.Config) *huh.Form {
+func createForm(cfg *config.Config) *huh.Form {
 	var groups []*huh.Group
 
 	// check if any flag is empty
@@ -46,12 +46,12 @@ func createForm(cfg *spec.Config) *huh.Form {
 
 	if cfg.Form.ServerTypeFlag == "" {
 		groups = append(groups, huh.NewGroup(
-			huh.NewSelect[spec.ServerTypeFlag]().
+			huh.NewSelect[config.ServerTypeFlag]().
 				Title("What should be the type of server?").
 				Options(
-					huh.NewOption("REST", spec.REST),
-					huh.NewOption("gRPC", spec.GRPC),
-					huh.NewOption("GraphQL", spec.GraphQL),
+					huh.NewOption("REST", config.REST),
+					huh.NewOption("gRPC", config.GRPC),
+					huh.NewOption("GraphQL", config.GraphQL),
 				).
 				Value(&cfg.Form.ServerTypeFlag),
 		))
@@ -68,7 +68,7 @@ func createForm(cfg *spec.Config) *huh.Form {
 	if !cfg.Form.MakefileFlag {
 		groups = append(groups, huh.NewGroup(
 			huh.NewConfirm().
-				Title("Should I generate Makefile?").
+				Title("Should I generate Makefile? (recommended)").
 				Value(&cfg.Form.MakefileFlag),
 		))
 	}

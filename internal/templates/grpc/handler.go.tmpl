@@ -1,0 +1,35 @@
+package api
+
+import (
+	"context"
+
+	"{{ .Form.Name }}/internal/logger"
+	pb "{{ .Form.Name }}/internal/pb/user"
+)
+
+type Handler struct {
+	logger *logger.Logger
+	pb.UnimplementedUserServiceServer
+}
+
+func NewHandler(logger *logger.Logger) *Handler {
+	return &Handler{
+		logger: logger,
+	}
+}
+
+func (h *Handler) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.GetUserResponse, error) {
+	return &pb.GetUserResponse{}, nil
+}
+
+func (h *Handler) CreateUser(ctx context.Context, req *pb.CreateUserRequest) (*pb.CreateUserResponse, error) {
+	return &pb.CreateUserResponse{}, nil
+}
+
+func (h *Handler) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
+	return &pb.UpdateUserResponse{}, nil
+}
+
+func (h *Handler) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {
+	return &pb.DeleteUserResponse{}, nil
+}

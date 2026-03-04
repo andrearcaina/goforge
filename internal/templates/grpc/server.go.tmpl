@@ -1,0 +1,54 @@
+package api
+
+import (
+	"context"
+	pb "{{ .Form.Name }}/internal/pb/user"
+	"{{ .Form.Name }}/internal/logger"
+	"{{ .Form.Name }}/internal/config"
+	"net"
+
+	"google.golang.org/grpc"
+)
+
+type Server struct {
+	grpcServer *grpc.Server
+	config     *config.Config
+	logger     *logger.Logger
+}
+
+func NewServer(cfg *config.Config, logger *logger.Logger, handler *Handler) *Server {
+	// create gRPC server with logging interceptor
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			logger.NewGRPCLoggingInterceptor(nil),
+		),
+	)
+
+	// register the user service with the gRPC server
+	pb.RegisterUserServiceServer(grpcServer, handler)
+
+	return &Server{
+		grpcServer: grpcServer,
+		config:     cfg,
+		logger:     logger,
+	}
+}
+
+func (s *Server) Run() error {
+	listener, err := net.Listen("tcp", s.config.PORT)
+	if err != nil {
+		return err
+	}
+
+	s.logger.Info(context.Background(), "Starting gRPC server", "port", s.config.PORT)
+	return s.grpcServer.Serve(listener)
+}
+
+func (s *Server) Close(ctx context.Context) error {
+	s.logger.Info(ctx, "Shutting down gRPC server gracefully...")
+
+	s.grpcServer.GracefulStop()
+
+	s.logger.Info(ctx, "gRPC server shutdown complete.")
+	return nil
+}

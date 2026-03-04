@@ -3,16 +3,16 @@ package goforge
 import (
 	"fmt"
 
-	"github.com/andrearcaina/goforge/internal/spec"
+	"github.com/andrearcaina/goforge/internal/config"
 	"github.com/andrearcaina/goforge/internal/ui"
 	"github.com/charmbracelet/huh/spinner"
 )
 
-func Forge(cfg *spec.Config) error {
+func Forge(cfg *config.Config) error {
 	if cfg.Default {
-		cfg.Form = spec.Form{
+		cfg.Form = config.Form{
 			Name:           "example-server",
-			ServerTypeFlag: spec.REST,
+			ServerTypeFlag: config.REST,
 			DatabaseFlag:   false,
 		}
 	} else {

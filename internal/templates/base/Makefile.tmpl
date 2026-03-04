@@ -4,10 +4,15 @@ default: run
 
 tidy:
 	go mod tidy
-
+{{ if eq .Form.ServerTypeFlag "rest" }}
 generate-api:
 	swag init -g ./cmd/server/main.go
-
+{{ else if eq .Form.ServerTypeFlag "grpc" }}
+generate-api:
+	protoc --go_out=. --go_opt=paths=source_relative \
+	    --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+	    internal/pb/user/user.proto
+{{ end }}
 build: tidy generate-api {{ if .Form.DatabaseFlag }}generate-db{{ end }}
 	go build -o ./bin/main ./cmd/server/main.go
 

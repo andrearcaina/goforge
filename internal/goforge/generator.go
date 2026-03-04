@@ -7,19 +7,24 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/andrearcaina/goforge/internal/spec"
+	"github.com/andrearcaina/goforge/internal/config"
 	"github.com/andrearcaina/goforge/internal/templates"
 )
 
-func Generate(cfg *spec.Config) error {
+func Generate(cfg *config.Config) error {
 	// generate base files
 	if err := generateBaseFiles(cfg); err != nil {
 		return err
 	}
 
 	// generate server files based on the selected server type
-	if cfg.Form.ServerTypeFlag == spec.REST {
+	switch cfg.Form.ServerTypeFlag {
+	case config.REST:
 		if err := generateRESTServer(cfg); err != nil {
+			return err
+		}
+	case config.GRPC:
+		if err := generateGRPCServer(cfg); err != nil {
 			return err
 		}
 	}
@@ -34,7 +39,7 @@ func Generate(cfg *spec.Config) error {
 	return nil
 }
 
-func generateBaseFiles(cfg *spec.Config) error {
+func generateBaseFiles(cfg *config.Config) error {
 	dirs := []string{
 		"cmd/server",
 		"internal/api",
@@ -52,8 +57,11 @@ func generateBaseFiles(cfg *spec.Config) error {
 	}
 
 	mainTemplates := []string{"base/main.go.tmpl"}
-	if cfg.Form.ServerTypeFlag == spec.REST {
+	switch cfg.Form.ServerTypeFlag {
+	case config.REST:
 		mainTemplates = []string{"rest/main.go.tmpl"}
+	case config.GRPC:
+		mainTemplates = []string{"grpc/main.go.tmpl"}
 	}
 
 	if err := generateFile(mainTemplates, filepath.Join(cfg.OutputPath, "cmd/server/main.go"), cfg); err != nil {
@@ -87,7 +95,7 @@ func generateBaseFiles(cfg *spec.Config) error {
 	return nil
 }
 
-func generateRESTServer(cfg *spec.Config) error {
+func generateRESTServer(cfg *config.Config) error {
 	// specific go module
 	if err := generateFile([]string{"rest/go.mod.tmpl"}, filepath.Join(cfg.OutputPath, "go.mod"), cfg); err != nil {
 		return err
@@ -109,7 +117,7 @@ func generateRESTServer(cfg *spec.Config) error {
 	return nil
 }
 
-func generateDBFiles(cfg *spec.Config) error {
+func generateDBFiles(cfg *config.Config) error {
 	dbFiles := map[string]string{
 		"base/sqlc.yaml.tmpl": "sqlc.yaml",
 		"db/init.sql.tmpl":    fmt.Sprintf("internal/db/migrations/%s_init.sql", time.Now().Format("20060102150405")),
@@ -146,6 +154,27 @@ func generateFile(tmplPath []string, outputPath string, data interface{}) error 
 
 	if err := tmpl.Execute(out, data); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func generateGRPCServer(cfg *config.Config) error {
+	// specific go module
+	if err := generateFile([]string{"grpc/go.mod.tmpl"}, filepath.Join(cfg.OutputPath, "go.mod"), cfg); err != nil {
+		return err
+	}
+
+	apiFiles := map[string]string{
+		"grpc/server.go.tmpl":   "internal/api/server.go",
+		"grpc/handler.go.tmpl":  "internal/api/handler.go",
+		"proto/user.proto.tmpl": "internal/pb/user/user.proto",
+	}
+
+	for tmpl, out := range apiFiles {
+		if err := generateFile([]string{tmpl}, filepath.Join(cfg.OutputPath, out), cfg); err != nil {
+			return err
+		}
 	}
 
 	return nil
