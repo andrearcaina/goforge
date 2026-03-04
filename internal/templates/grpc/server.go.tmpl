@@ -35,12 +35,13 @@ func NewServer(cfg *config.Config, logger *logger.Logger, handler *Handler) *Ser
 }
 
 func (s *Server) Run() error {
+	s.logger.Info(context.Background(), "Starting gRPC server", "port", s.config.PORT)
+
 	listener, err := net.Listen("tcp", s.config.PORT)
 	if err != nil {
 		return err
 	}
 
-	s.logger.Info(context.Background(), "Starting gRPC server", "port", s.config.PORT)
 	return s.grpcServer.Serve(listener)
 }
 
