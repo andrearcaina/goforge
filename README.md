@@ -11,19 +11,23 @@ The idea is that these are backend services (like microservices), not an entire 
 P.S. This was encountered while working on [fáfnir](https://github.com/andrearcaina/fafnir).
 
 ### Installation
+
 `goforge` can be installed on Windows or Linux, WSL, Git Bash:
 
 Install via cURL on Linux, WSL, or Git Bash:
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/andrearcaina/goforge/main/install.sh | sh
 ```
 
 Install via Powershell on Windows:
+
 ```bash
 irm https://raw.githubusercontent.com/andrearcaina/goforge/main/install.ps1 | iex
 ```
 
 Or via Go (requires Go 1.24.5 or later):
+
 ```bash
 go install github.com/andrearcaina/goforge@latest
 ```
@@ -33,10 +37,13 @@ go install github.com/andrearcaina/goforge@latest
 This CLI can generate three server types, along with optional database scaffolding. For now, it only generates a REST API. See the [TODO](#todo) section for planned features.
 
 To generate a Go REST server, run:
+
 ```
 > goforge generate -p rest-server -n my-server -s REST -m
 ```
+
 This command does the following:
+
 - Creates a directory named `rest-server`
 - Initializes a `go.mod` file with the module name `my-server`
 - Configures the server type as `REST`
@@ -49,7 +56,7 @@ If any required flags are missing, an interactive TUI will appear:
 
 You can see that the TUI appears, asking if you should generate the database files.
 
-The following fields must be provided either via CLI flags or through the TUI (check [`internal/spec/config.go`](internal/spec/config.go)):
+The following fields must be provided either via CLI flags or through the TUI (check [`internal/config/config.go`](internal/config/config.go)):
 
 ```go
 type ServerTypeFlag string
@@ -67,6 +74,7 @@ type Form struct {
 	MakefileFlag   bool
 }
 ```
+
 If all required flags are provided (including `--database`), the TUI is skipped and the server is generated immediately.
 
 For example, running with all required flags will produce:
@@ -79,12 +87,12 @@ Here is an example where you can trigger the TUI:\
 
 In no particular order:
 
-- [ ] Allow different server type boilerplates 
+- [ ] Allow different server type boilerplates
     - [x] REST (`go-chi`)
     - [x] gRPC (`grpc-go`)
     - [ ] GraphQL (`gqlgen`)
-- [X] Add Makefile support flag
+- [x] Add Makefile support flag
 - [x] Add SQLc/database support flag
-    - [X] Potentially add a docker-compose file to spin up a PostgreSQL instance
+    - [x] Potentially add a docker-compose file to spin up a PostgreSQL instance
 - [x] Interactive UI for when certain flags are not provided
-- [X] Add installation scripts for both Windows and Linux
+- [x] Add installation scripts for both Windows and Linux
