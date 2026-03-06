@@ -4,6 +4,9 @@ Copyright © 2026 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
+	"os"
+	"regexp"
 	"strings"
 
 	"github.com/andrearcaina/goforge/internal/config"
@@ -48,5 +51,13 @@ func init() {
 	generateCmd.PreRun = func(cmd *cobra.Command, args []string) {
 		// first convert to string, then lowercase the string, then convert back to ServerTypeFlag
 		cfg.Form.ServerTypeFlag = config.ServerTypeFlag(strings.ToLower(string(cfg.Form.ServerTypeFlag)))
+
+		// validate go.mod names
+		if cfg.Form.Name != "" {
+			if matched, _ := regexp.MatchString(`[^a-zA-Z0-9_\-]`, cfg.Form.Name); matched {
+				fmt.Println("Error: project name can only contain letters, numbers, underscores, or dashes")
+				os.Exit(1)
+			}
+		}
 	}
 }

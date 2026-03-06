@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/andrearcaina/goforge/internal/config"
 	"github.com/charmbracelet/huh"
@@ -38,6 +39,9 @@ func createForm(cfg *config.Config) *huh.Form {
 				Validate(func(s string) error {
 					if s == "" {
 						return fmt.Errorf("project name cannot be empty")
+					}
+					if matched, _ := regexp.MatchString(`[^a-zA-Z0-9_\-]`, s); matched {
+						return fmt.Errorf("project name can only contain letters, numbers, underscores, or dashes")
 					}
 					return nil
 				}),
