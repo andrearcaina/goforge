@@ -2,8 +2,37 @@
 
 default: run
 
-tidy:
+define check_tool
+    @if !command -v $(1) > /dev/null 2>&1; then \
+        echo "$(2) is not installed. Please install $(2) to proceed."; \
+        exit 1; \
+    else \
+    	echo "$(2) is already installed."; \
+	fi
+endef
+
+define install_tool
+	@if command -v $(1) > /dev/null 2>&1; then \
+		echo "$(2) already installed."; \
+	else \
+		echo "Installing $(2)..."; \
+		go install $(3); \
+	fi
+endef
+
+install:
+	@echo "Installing required Go dependencies to run application..."
+	$(call check_tool,go,Go)
 	go mod tidy
+	@echo "Installing required tools for development..."
+{{ if eq .Form.ServerTypeFlag "rest" }}
+	$(call install_tool,swag,Swag,github.com/swaggo/swag/cmd/swag@latest)
+{{ else if eq .Form.ServerTypeFlag "grpc" }}
+	$(call check_tool,protoc,Protocol Buffers Compiler)
+	$(call install_tool,protoc-gen-go,protoc-gen-go,google.golang.org/protobuf/cmd/protoc-gen-go@latest)
+	$(call install_tool,protoc-gen-go-grpc,protoc-gen-go-grpc,google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest){{ end }}{{ if .Form.DatabaseFlag }}
+	$(call install_tool,goose,Goose,github.com/pressly/goose/v3/cmd/goose@latest)
+	$(call install_tool,sqlc,SQLC,github.com/sqlc-dev/sqlc/cmd/sqlc@latest){{ end }}
 {{ if eq .Form.ServerTypeFlag "rest" }}
 generate-api:
 	swag init -g ./cmd/server/main.go
@@ -13,10 +42,10 @@ generate-api:
 	    --go-grpc_out=. --go-grpc_opt=paths=source_relative \
 	    internal/pb/user/user.proto
 {{ end }}
-build: tidy generate-api {{ if .Form.DatabaseFlag }}generate-db{{ end }}
+build: generate-api {{ if .Form.DatabaseFlag }}generate-db{{ end }}
 	go build -o ./bin/main ./cmd/server/main.go
 
-run: build
+run: install build
 	./bin/main
 
 clean:
