@@ -34,7 +34,7 @@ go install github.com/andrearcaina/goforge@latest
 
 ### CLI Usage
 
-This CLI can generate three server types, along with optional database scaffolding. For now, it only generates a REST API. See the [TODO](#todo) section for planned features.
+This CLI can generate three server types, along with optional database scaffolding and configuration scripts. For now, it can generate a REST API and a gRPC server. See the [TODO](#todo) section for planned features.
 
 To generate a Go REST server, run:
 
