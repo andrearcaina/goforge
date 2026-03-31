@@ -12,30 +12,75 @@ import (
 )
 
 func Generate(cfg *config.Config) error {
-	// generate base files
 	if err := generateBaseFiles(cfg); err != nil {
 		return err
 	}
 
-	// generate server files based on the selected server type
 	switch cfg.Form.ServerTypeFlag {
 	case config.REST:
-		if err := generateRESTServer(cfg); err != nil {
+		files := map[string]string{
+			"rest/go.mod.tmpl":     "go.mod",
+			"rest/server.go.tmpl":  "internal/api/server.go",
+			"rest/handler.go.tmpl": "internal/api/handler.go",
+			"rest/service.go.tmpl": "internal/api/service.go",
+		}
+		if err := generateRequiredFiles(cfg, files); err != nil {
 			return err
 		}
 	case config.GRPC:
-		if err := generateGRPCServer(cfg); err != nil {
+		files := map[string]string{
+			"grpc/go.mod.tmpl":      "go.mod",
+			"grpc/server.go.tmpl":   "internal/api/server.go",
+			"grpc/handler.go.tmpl":  "internal/api/handler.go",
+			"proto/user.proto.tmpl": "internal/pb/user/user.proto",
+		}
+		if err := generateRequiredFiles(cfg, files); err != nil {
+			return err
+		}
+	case config.GraphQL:
+		dirs := []string{
+			"graph",
+			"graph/generated",
+			"graph/model",
+			"graph/resolvers",
+			"graph/schemas",
+		}
+		if err := generateDirs(cfg, dirs); err != nil {
+			return err
+		}
+
+		files := map[string]string{
+			"graphql/go.mod.tmpl":                "go.mod",
+			"graphql/server.go.tmpl":             "internal/api/server.go",
+			"graphql/gqlgen.yml.tmpl":            "gqlgen.yml",
+			"graphql/schemas/user.graphqls.tmpl": "graph/schemas/user.graphqls",
+		}
+		if err := generateRequiredFiles(cfg, files); err != nil {
 			return err
 		}
 	}
 
-	// generate database files if flag is set
 	if cfg.Form.DatabaseFlag {
-		if err := generateDBFiles(cfg); err != nil {
+		files := map[string]string{
+			"base/sqlc.yaml.tmpl": "sqlc.yaml",
+			"db/init.sql.tmpl":    fmt.Sprintf("internal/db/migrations/%s_init.sql", time.Now().Format("20060102150405")),
+			"db/user.sql.tmpl":    "internal/db/queries/user.sql",
+			"db/db.go.tmpl":       "internal/db/db.go",
+		}
+		if err := generateRequiredFiles(cfg, files); err != nil {
 			return err
 		}
 	}
 
+	return nil
+}
+
+func generateDirs(cfg *config.Config, dirs []string) error {
+	for _, dir := range dirs {
+		if err := os.MkdirAll(filepath.Join(cfg.OutputPath, dir), 0755); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -50,102 +95,60 @@ func generateBaseFiles(cfg *config.Config) error {
 		dirs = append(dirs, "internal/db", "internal/db/generated", "internal/db/migrations", "internal/db/queries")
 	}
 
-	for _, dir := range dirs {
-		if err := os.MkdirAll(filepath.Join(cfg.OutputPath, dir), 0755); err != nil {
-			return err
-		}
+	if err := generateDirs(cfg, dirs); err != nil {
+		return err
 	}
 
-	mainTemplates := []string{"base/main.go.tmpl"}
+	// files to generate
+	files := map[string]string{}
+
 	switch cfg.Form.ServerTypeFlag {
 	case config.REST:
-		mainTemplates = []string{"rest/main.go.tmpl"}
+		files["rest/main.go.tmpl"] = "cmd/server/main.go"
 	case config.GRPC:
-		mainTemplates = []string{"grpc/main.go.tmpl"}
+		files["grpc/main.go.tmpl"] = "cmd/server/main.go"
+	case config.GraphQL:
+		files["graphql/main.go.tmpl"] = "cmd/server/main.go"
 	}
 
-	if err := generateFile(mainTemplates, filepath.Join(cfg.OutputPath, "cmd/server/main.go"), cfg); err != nil {
-		return err
-	}
-
-	if err := generateFile([]string{"base/config.go.tmpl"}, filepath.Join(cfg.OutputPath, "internal/config/config.go"), cfg); err != nil {
-		return err
-	}
-
-	if err := generateFile([]string{"base/logger.go.tmpl"}, filepath.Join(cfg.OutputPath, "internal/logger/logger.go"), cfg); err != nil {
-		return err
-	}
+	files["base/config.go.tmpl"] = "internal/config/config.go"
+	files["base/logger.go.tmpl"] = "internal/logger/logger.go"
 
 	if cfg.Form.MakefileFlag {
-		if err := generateFile([]string{"base/Makefile.tmpl"}, filepath.Join(cfg.OutputPath, "Makefile"), cfg); err != nil {
-			return err
-		}
+		files["base/Makefile.tmpl"] = "Makefile"
 	}
 
 	if cfg.Form.DockerFlag {
-		if err := generateFile([]string{"base/compose.yml.tmpl"}, filepath.Join(cfg.OutputPath, "docker-compose.yml"), cfg); err != nil {
-			return err
-		}
-
-		if err := generateFile([]string{"base/.env.example.tmpl"}, filepath.Join(cfg.OutputPath, ".env"), cfg); err != nil {
-			return err
-		}
+		files["base/compose.yml.tmpl"] = "docker-compose.yml"
+		files["base/.env.example.tmpl"] = ".env.example"
 	}
 
-	return nil
-}
-
-func generateRESTServer(cfg *config.Config) error {
-	// specific go module
-	if err := generateFile([]string{"rest/go.mod.tmpl"}, filepath.Join(cfg.OutputPath, "go.mod"), cfg); err != nil {
+	if err := generateRequiredFiles(cfg, files); err != nil {
 		return err
 	}
 
-	apiFiles := map[string]string{
-		"rest/server.go.tmpl":  "internal/api/server.go",
-		"rest/handler.go.tmpl": "internal/api/handler.go",
-		"rest/service.go.tmpl": "internal/api/service.go",
-		"rest/types.go.tmpl":   "internal/api/types.go",
-	}
-
-	for tmpl, out := range apiFiles {
-		if err := generateFile([]string{tmpl}, filepath.Join(cfg.OutputPath, out), cfg); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
-func generateDBFiles(cfg *config.Config) error {
-	dbFiles := map[string]string{
-		"base/sqlc.yaml.tmpl": "sqlc.yaml",
-		"db/init.sql.tmpl":    fmt.Sprintf("internal/db/migrations/%s_init.sql", time.Now().Format("20060102150405")),
-		"db/user.sql.tmpl":    "internal/db/queries/user.sql",
-		"db/db.go.tmpl":       "internal/db/db.go",
-	}
-
-	for tmpl, out := range dbFiles {
-		if err := generateFile([]string{tmpl}, filepath.Join(cfg.OutputPath, out), cfg); err != nil {
+func generateRequiredFiles(cfg *config.Config, files map[string]string) error {
+	for tmpl, out := range files {
+		if err := generateSpecificFile([]string{tmpl}, filepath.Join(cfg.OutputPath, out), cfg); err != nil {
 			return err
 		}
 	}
-
 	return nil
 }
 
-func generateFile(tmplPath []string, outputPath string, data interface{}) error {
+func generateSpecificFile(tmplPath []string, outputPath string, data interface{}) error {
 	tmpl, err := template.ParseFS(templates.FS, tmplPath...)
 	if err != nil {
 		return err
 	}
 
-	// ensure the directory exists
 	if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
 		return err
 	}
 
-	// create the file
 	out, err := os.Create(outputPath)
 	if err != nil {
 		return err
@@ -154,27 +157,6 @@ func generateFile(tmplPath []string, outputPath string, data interface{}) error 
 
 	if err := tmpl.Execute(out, data); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func generateGRPCServer(cfg *config.Config) error {
-	// specific go module
-	if err := generateFile([]string{"grpc/go.mod.tmpl"}, filepath.Join(cfg.OutputPath, "go.mod"), cfg); err != nil {
-		return err
-	}
-
-	apiFiles := map[string]string{
-		"grpc/server.go.tmpl":   "internal/api/server.go",
-		"grpc/handler.go.tmpl":  "internal/api/handler.go",
-		"proto/user.proto.tmpl": "internal/pb/user/user.proto",
-	}
-
-	for tmpl, out := range apiFiles {
-		if err := generateFile([]string{tmpl}, filepath.Join(cfg.OutputPath, out), cfg); err != nil {
-			return err
-		}
 	}
 
 	return nil

@@ -1,5 +1,4 @@
-.PHONY: default tidy swag build run clean {{ if .Form.DatabaseFlag }}migrate-up migrate-down migrate-status migrate-create{{ end }}
-
+.PHONY: default tidy build run clean install generate-api {{ if .Form.DatabaseFlag }}migrate-up migrate-down migrate-status migrate-create generate-db{{ end }}
 default: run
 
 define check_tool
@@ -32,7 +31,9 @@ install:
 	$(call install_tool,protoc-gen-go,protoc-gen-go,google.golang.org/protobuf/cmd/protoc-gen-go@latest)
 	$(call install_tool,protoc-gen-go-grpc,protoc-gen-go-grpc,google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest){{ end }}{{ if .Form.DatabaseFlag }}
 	$(call install_tool,goose,Goose,github.com/pressly/goose/v3/cmd/goose@latest)
-	$(call install_tool,sqlc,SQLC,github.com/sqlc-dev/sqlc/cmd/sqlc@latest){{ end }}
+	$(call install_tool,sqlc,SQLC,github.com/sqlc-dev/sqlc/cmd/sqlc@latest)
+{{ else if eq .Form.ServerTypeFlag "graphql" }}
+	$(call install_tool,gqlgen,gqlgen,github.com/99designs/gqlgen@v0.17.85){{ end }}
 {{ if eq .Form.ServerTypeFlag "rest" }}
 generate-api:
 	swag init -g ./cmd/server/main.go
@@ -41,6 +42,9 @@ generate-api:
 	protoc --go_out=. --go_opt=paths=source_relative \
 	    --go-grpc_out=. --go-grpc_opt=paths=source_relative \
 	    internal/pb/user/user.proto
+{{ else if eq .Form.ServerTypeFlag "graphql" }}
+generate-api:
+	gqlgen generate
 {{ end }}
 build: generate-api {{ if .Form.DatabaseFlag }}generate-db{{ end }}
 	go build -o ./bin/main ./cmd/server/main.go

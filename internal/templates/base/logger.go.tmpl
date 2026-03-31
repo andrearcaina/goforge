@@ -5,12 +5,12 @@ import (
 	"io"
 	"log"
 	"log/slog"
-	{{ if eq .Form.ServerTypeFlag "rest" }} "net/http" {{ end }}
+	{{ if or (eq .Form.ServerTypeFlag "rest") (eq .Form.ServerTypeFlag "graphql") }} "net/http" {{ end }}
 	"os"
 	"path/filepath"
 	{{ if eq .Form.ServerTypeFlag "grpc" }} "time" {{ end }}
 
-	{{ if eq .Form.ServerTypeFlag "rest" }} "github.com/go-chi/chi/v5/middleware" {{ end }}
+	{{ if or (eq .Form.ServerTypeFlag "rest") (eq .Form.ServerTypeFlag "graphql") }} "github.com/go-chi/chi/v5/middleware" {{ end }}
 	{{ if eq .Form.ServerTypeFlag "grpc" }}
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
@@ -78,7 +78,7 @@ func (l *Logger) Error(ctx context.Context, msg string, args ...any) {
 func (l *Logger) Debug(ctx context.Context, msg string, args ...any) {
 	l.logger.DebugContext(ctx, msg, args...)
 }
-{{ if eq .Form.ServerTypeFlag "rest" }}
+{{ if or (eq .Form.ServerTypeFlag "rest") (eq .Form.ServerTypeFlag "graphql") }}
 func (l *Logger) RequestLogger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)

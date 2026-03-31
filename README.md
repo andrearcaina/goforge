@@ -34,7 +34,7 @@ go install github.com/andrearcaina/goforge@latest
 
 ### CLI Usage
 
-This CLI can generate three server types, along with optional database scaffolding and configuration scripts. For now, it can generate a REST API and a gRPC server. See the [TODO](#todo) section for planned features.
+This CLI can generate three server types (REST, gRPC, GraphQL), along with optional database scaffolding and configuration (Makefile) scripts.
 
 To generate a Go REST server, run:
 
@@ -83,14 +83,12 @@ For example, running with all required flags will produce:
 Here is an example where you can trigger the TUI:\
 ![goforge TUI](images/goforge-tui.png)
 
-### TODO
+### Roadmap
 
-In no particular order:
-
-- [ ] Allow different server type boilerplates
+- [X] Allow different server type boilerplates
     - [x] REST (`go-chi`)
     - [x] gRPC (`grpc-go`)
-    - [ ] GraphQL (`gqlgen`)
+    - [X] GraphQL (`gqlgen`)
 - [x] Add Makefile support flag
 - [x] Add SQLc/database support flag
     - [x] Potentially add a docker-compose file to spin up a PostgreSQL instance

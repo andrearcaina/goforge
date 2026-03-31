@@ -35,6 +35,7 @@ func buildCommands(cfg *config.Config) []string {
 	docker := cfg.Form.DockerFlag
 	isREST := cfg.Form.ServerTypeFlag == config.REST
 	isGRPC := cfg.Form.ServerTypeFlag == config.GRPC
+	isGraphQL := cfg.Form.ServerTypeFlag == config.GraphQL
 
 	commands := []string{
 		fmt.Sprintf("cd %s", cfg.OutputPath),
@@ -86,6 +87,11 @@ func buildCommands(cfg *config.Config) []string {
 				"protoc --go_out=. --go_opt=paths=source_relative \\",
 				"    --go-grpc_out=. --go-grpc_opt=paths=source_relative \\",
 				"    internal/pb/user/user.proto    # install protoc and go plugins if you haven't already",
+			)
+		} else if isGraphQL {
+			commands = append(commands,
+				"go get github.com/99designs/gqlgen@v0.17.85 # install gqlgen if you haven't already",
+				"gqlgen generate",
 			)
 		}
 
