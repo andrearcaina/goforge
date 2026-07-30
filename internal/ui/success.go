@@ -2,7 +2,6 @@ package ui
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/andrearcaina/goforge/internal/config"
 	"github.com/charmbracelet/lipgloss"
@@ -25,8 +24,6 @@ func OutputSuccess(cfg *config.Config) {
 
 	commands := buildCommands(cfg)
 	printCommands(commands)
-
-	os.Exit(0)
 }
 
 func buildCommands(cfg *config.Config) []string {

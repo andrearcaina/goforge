@@ -5,10 +5,15 @@ import (
 
 	"github.com/andrearcaina/goforge/internal/config"
 	"github.com/andrearcaina/goforge/internal/ui"
+	"github.com/andrearcaina/goforge/internal/utils"
 	"github.com/charmbracelet/huh/spinner"
 )
 
 func Forge(cfg *config.Config) error {
+	if cfg == nil {
+		return fmt.Errorf("invalid configuration: configuration cannot be nil")
+	}
+
 	if cfg.Default {
 		cfg.Form = config.Form{
 			Name:           "example-server",
@@ -19,6 +24,10 @@ func Forge(cfg *config.Config) error {
 		if err := ui.Run(cfg); err != nil {
 			return fmt.Errorf("failed to run UI: %w", err)
 		}
+	}
+
+	if err := utils.Validate(cfg); err != nil {
+		return fmt.Errorf("invalid configuration: %w", err)
 	}
 
 	var err error

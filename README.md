@@ -68,14 +68,27 @@ const (
 )
 
 type Form struct {
-	Name           string
-	ServerTypeFlag ServerTypeFlag
-	DatabaseFlag   bool
-	MakefileFlag   bool
+    Name           string
+    ServerTypeFlag ServerTypeFlag
+    DatabaseFlag   bool
+    MakefileFlag   bool
+    DockerFlag     bool
 }
 ```
 
-If all required flags are provided (including `--database`), the TUI is skipped and the server is generated immediately.
+For non-interactive use (without opening the TUI options), explicitly provide each boolean option, including false values:
+
+```bash
+goforge generate \
+  --path rest-server \
+  --name my-server \
+  --server rest \
+  --database=false \
+  --makefile=true \
+  --docker=false
+```
+
+Docker generation requires database generation. If a generated file already exists, `goforge` preserves it and returns an error; pass `--force` to explicitly replace generated files.
 
 For example, running with all required flags will produce:
 ![goforge all flags](images/goforge-all-flags.png)
@@ -85,10 +98,10 @@ Here is an example where you can trigger the TUI:\
 
 ### Roadmap
 
-- [X] Allow different server type boilerplates
+- [x] Allow different server type boilerplates
     - [x] REST (`go-chi`)
     - [x] gRPC (`grpc-go`)
-    - [X] GraphQL (`gqlgen`)
+    - [x] GraphQL (`gqlgen`)
 - [x] Add Makefile support flag
 - [x] Add SQLc/database support flag
     - [x] Potentially add a docker-compose file to spin up a PostgreSQL instance

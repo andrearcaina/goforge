@@ -1,12 +1,6 @@
-/*
-Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
-	"fmt"
-	"os"
-	"regexp"
 	"strings"
 
 	"github.com/andrearcaina/goforge/internal/config"
@@ -19,26 +13,21 @@ var cfg config.Config
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
 	Use:   "generate",
-	Short: "Generate a hello world message",
-	Long: `Generates a simple hello world message using the provided flag.
-For example:
+	Short: "Generate a Go backend service",
+	Long: `Generate a REST, gRPC, or GraphQL Go backend service.
 
-goforge generate --some-flag "Developer"`,
+Missing options are collected through an interactive form.`,
+	Args: cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if err := goforge.Forge(&cfg); err != nil {
-			return err
-		}
-
-		return nil
+		return goforge.Forge(&cfg)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(generateCmd)
-
 	// general flags
 	generateCmd.Flags().StringVarP(&cfg.OutputPath, "path", "p", ".", "The directory to write the generated file to")
 	generateCmd.Flags().BoolVarP(&cfg.Default, "default", "d", false, "Use default configuration values")
+	generateCmd.Flags().BoolVarP(&cfg.Force, "force", "f", false, "Overwrite generated files that already exist")
 
 	// flags for form fields
 	generateCmd.Flags().StringVarP(&cfg.Form.Name, "name", "n", "", "The name for the go.mod module")
@@ -48,16 +37,13 @@ func init() {
 	generateCmd.Flags().BoolVarP(&cfg.Form.DockerFlag, "docker", "D", false, "Generate Docker Compose (for DB) and .env file (if flag is set, set to true)")
 
 	// normalize server type flag to lowercase
-	generateCmd.PreRun = func(cmd *cobra.Command, args []string) {
-		// first convert to string, then lowercase the string, then convert back to ServerTypeFlag
-		cfg.Form.ServerTypeFlag = config.ServerTypeFlag(strings.ToLower(string(cfg.Form.ServerTypeFlag)))
-
-		// validate go.mod names
-		if cfg.Form.Name != "" {
-			if matched, _ := regexp.MatchString(`[^a-zA-Z0-9_\-]`, cfg.Form.Name); matched {
-				fmt.Println("Error: project name can only contain letters, numbers, underscores, or dashes")
-				os.Exit(1)
-			}
-		}
+	generateCmd.PreRunE = func(cmd *cobra.Command, args []string) error {
+		cfg.Form.ServerTypeFlag = config.ServerTypeFlag(strings.ToLower(strings.TrimSpace(string(cfg.Form.ServerTypeFlag))))
+		cfg.Form.Name = strings.TrimSpace(cfg.Form.Name)
+		cfg.OutputPath = strings.TrimSpace(cfg.OutputPath)
+		cfg.DatabaseFlagSet = cmd.Flags().Changed("database")
+		cfg.MakefileFlagSet = cmd.Flags().Changed("makefile")
+		cfg.DockerFlagSet = cmd.Flags().Changed("docker")
+		return nil
 	}
 }

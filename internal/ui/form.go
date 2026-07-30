@@ -1,10 +1,8 @@
 package ui
 
 import (
-	"fmt"
-	"regexp"
-
 	"github.com/andrearcaina/goforge/internal/config"
+	"github.com/andrearcaina/goforge/internal/utils"
 	"github.com/charmbracelet/huh"
 )
 
@@ -36,15 +34,7 @@ func createForm(cfg *config.Config) *huh.Form {
 			huh.NewInput().
 				Title("What should be the name of the project/go module?").
 				Value(&cfg.Form.Name).
-				Validate(func(s string) error {
-					if s == "" {
-						return fmt.Errorf("project name cannot be empty")
-					}
-					if matched, _ := regexp.MatchString(`[^a-zA-Z0-9_\-]`, s); matched {
-						return fmt.Errorf("project name can only contain letters, numbers, underscores, or dashes")
-					}
-					return nil
-				}),
+				Validate(utils.ValidateProjectName),
 		))
 	}
 
@@ -61,7 +51,7 @@ func createForm(cfg *config.Config) *huh.Form {
 		))
 	}
 
-	if !cfg.Form.DatabaseFlag {
+	if !cfg.DatabaseFlagSet {
 		groups = append(groups, huh.NewGroup(
 			huh.NewConfirm().
 				Title("Should I generate database files?").
@@ -69,7 +59,7 @@ func createForm(cfg *config.Config) *huh.Form {
 		))
 	}
 
-	if !cfg.Form.MakefileFlag {
+	if !cfg.MakefileFlagSet {
 		groups = append(groups, huh.NewGroup(
 			huh.NewConfirm().
 				Title("Should I generate Makefile? (recommended)").
@@ -77,12 +67,15 @@ func createForm(cfg *config.Config) *huh.Form {
 		))
 	}
 
-	if !cfg.Form.DockerFlag {
-		groups = append(groups, huh.NewGroup(
+	if !cfg.DockerFlagSet && (!cfg.DatabaseFlagSet || cfg.Form.DatabaseFlag) {
+		dockerGroup := huh.NewGroup(
 			huh.NewConfirm().
 				Title("Should I generate Docker compose file and .env file?").
 				Value(&cfg.Form.DockerFlag),
-		))
+		).WithHideFunc(func() bool {
+			return !cfg.Form.DatabaseFlag
+		})
+		groups = append(groups, dockerGroup)
 	}
 
 	// if no groups were added, return nil

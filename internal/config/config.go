@@ -10,9 +10,13 @@ const (
 )
 
 type Config struct {
-	OutputPath string
-	Default    bool
-	Form       Form
+	OutputPath      string
+	Default         bool
+	Force           bool
+	DatabaseFlagSet bool
+	MakefileFlagSet bool
+	DockerFlagSet   bool
+	Form            Form
 }
 
 type Form struct {

@@ -54,6 +54,7 @@ func NewServer(cfg *config.Config, logger *logger.Logger) *Server {
 	// graphql endpoints for core services (/ is the playground, which is like a UI to test queries)
 	// while /graphql is the actual endpoint to send queries and mutations
 	router.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
+	router.Handle("/graphql", srv)
 
 	return &Server{
 		HTTP: &http.Server{
