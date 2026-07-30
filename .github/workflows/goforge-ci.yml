@@ -17,11 +17,23 @@ jobs:
               with:
                   go-version: "1.24.5"
 
-            - name: Verify deps, run tests, vet, lint, and build
+            - name: Set up golangci-lint
+              uses: golangci/golangci-lint-action@v9
+              with:
+                  version: v2.11
+                  install-only: true
+
+            - name: Tidy dependencies
+              run: go mod tidy
+
+            - name: Verify dependencies
+              run: go mod verify
+
+            - name: Run tests -> vet -> lint -> build
               run: make check
 
-            - name: Version Check
+            - name: Version check
               run: ./bin/goforge version
 
-            - name: Clean up
+            - name: Clean up binaries
               run: make clean
